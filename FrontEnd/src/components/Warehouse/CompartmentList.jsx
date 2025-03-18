@@ -23,7 +23,16 @@ const CompartmentList = () => {
         const compartmentsData = response.data.data || response.data;
         
         if (Array.isArray(compartmentsData)) {
-          setCompartments(compartmentsData);
+          // Sort compartments by ID number
+          const sortedCompartments = [...compartmentsData].sort((a, b) => {
+            // Convert IDs to strings and extract numbers
+            const idA = String(a.id);
+            const idB = String(b.id);
+            const numA = parseInt(idA.replace(/\D/g, '')) || 0;
+            const numB = parseInt(idB.replace(/\D/g, '')) || 0;
+            return numA - numB;
+          });
+          setCompartments(sortedCompartments);
           setError(null);
         } else {
           console.error('Data is not an array:', compartmentsData);

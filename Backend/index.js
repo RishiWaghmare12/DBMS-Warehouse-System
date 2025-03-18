@@ -1,14 +1,12 @@
 const express = require("express");
 const cors = require("cors");
-const { connectDB } = require("./config/db");
+const { connectDB, runQuery } = require("./config/db");
 const initDB = require("./db/init");
-const { pool } = require("./config/db");
 
 // Import API Routes
 const compartmentRoutes = require("./routes/compartments");
 const itemRoutes = require("./routes/items");
 const transactionRoutes = require("./routes/transactions");
-const warehouseRoutes = require("./routes/warehouse"); // Keeping for backwards compatibility
 
 const app = express();
 
@@ -28,8 +26,7 @@ const startServer = async () => {
         apiRoutes: {
           compartments: '/api/compartments',
           items: '/api/items',
-          transactions: '/api/transactions',
-          warehouse: '/api/warehouse (legacy)'
+          transactions: '/api/transactions'
         }
       });
     });
@@ -37,7 +34,7 @@ const startServer = async () => {
     // Health check route to verify database connection
     app.get('/health', async (req, res) => {
       try {
-        const result = await pool.query('SELECT NOW()');
+        const result = await runQuery('SELECT NOW()', []);
         res.json({
           status: 'healthy',
           dbConnection: 'connected',
@@ -56,7 +53,6 @@ const startServer = async () => {
     app.use('/api/compartments', compartmentRoutes);
     app.use('/api/items', itemRoutes);
     app.use('/api/transactions', transactionRoutes);
-    app.use('/api/warehouse', warehouseRoutes); // Legacy route
 
     // Error handling middleware
     app.use((err, req, res, next) => {

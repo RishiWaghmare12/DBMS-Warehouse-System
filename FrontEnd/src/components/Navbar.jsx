@@ -7,8 +7,7 @@ const Navbar = () => {
       <h1>Warehouse Management System</h1>
       <nav>
         <Link to="/warehouse" className="nav-link">Warehouse</Link>
-        <Link to="/receive" className="nav-link">Receive</Link>
-        <Link to="/send" className="nav-link">Send</Link>
+        <Link to="/send-receive" className="nav-link">Send/Receive</Link>
         <Link to="/transactions" className="nav-link">Transactions</Link>
       </nav>
     </header>

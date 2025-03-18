@@ -17,15 +17,9 @@ const HomePage = () => {
         </div>
         
         <div className="feature-card">
-          <h3>Receive Items</h3>
-          <p>Add new items or update existing inventory</p>
-          <Link to="/receive" className="feature-link">Receive Items</Link>
-        </div>
-        
-        <div className="feature-card">
-          <h3>Send Items</h3>
-          <p>Process outgoing items and update inventory</p>
-          <Link to="/send" className="feature-link">Send Items</Link>
+          <h3>Send/Receive Items</h3>
+          <p>Process incoming and outgoing items</p>
+          <Link to="/send-receive" className="feature-link">Send/Receive Items</Link>
         </div>
         
         <div className="feature-card">

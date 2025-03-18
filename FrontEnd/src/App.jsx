@@ -3,8 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import HomePage from './pages/HomePage';
 import WarehousePage from './pages/WarehousePage';
-import ReceivingPage from './pages/ReceivingPage';
-import SendingPage from './pages/SendingPage';
+import SendReceivePage from './pages/SendReceivePage';
 import TransactionsPage from './pages/TransactionsPage';
 import './App.css';
 
@@ -17,8 +16,7 @@ function App() {
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/warehouse" element={<WarehousePage />} />
-            <Route path="/receive" element={<ReceivingPage />} />
-            <Route path="/send" element={<SendingPage />} />
+            <Route path="/send-receive" element={<SendReceivePage />} />
             <Route path="/transactions" element={<TransactionsPage />} />
           </Routes>
         </div>

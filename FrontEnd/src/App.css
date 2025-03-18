@@ -1621,3 +1621,36 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 .dark-theme .hero-section p {
   color: var(--text-secondary);
 }
+
+.close-button {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  color: var(--gray-500);
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  width: 32px;
+  height: 32px;
+}
+
+.close-button:hover {
+  background-color: var(--gray-200);
+  color: var(--gray-700);
+  transform: scale(1.1);
+}
+
+.dark-theme .close-button {
+  color: var(--gray-400);
+}
+
+.dark-theme .close-button:hover {
+  background-color: var(--gray-300);
+  color: var(--gray-200);
+}

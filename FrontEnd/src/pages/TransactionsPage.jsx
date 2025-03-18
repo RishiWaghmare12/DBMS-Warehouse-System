@@ -5,6 +5,7 @@ import '../App.css';
 const TransactionsPage = () => {
   const [transactions, setTransactions] = useState([]);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     fetchTransactions();
@@ -12,6 +13,7 @@ const TransactionsPage = () => {
 
   const fetchTransactions = async () => {
     try {
+      setLoading(true);
       const response = await axios.get('http://localhost:3000/api/transactions');
       // Check if response.data is an array before sorting
       if (Array.isArray(response.data)) {
@@ -30,9 +32,12 @@ const TransactionsPage = () => {
         console.error('Unexpected response format:', response.data);
         setTransactions(response.data || []);
       }
+      setError('');
     } catch (err) {
       console.error('Error fetching transactions:', err);
       setError('Failed to fetch transactions');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -42,7 +47,16 @@ const TransactionsPage = () => {
 
   return (
     <div className="transactions-page">
-      <h2>Transaction History</h2>
+      <div className="transactions-header">
+        <h2>Transaction History</h2>
+        <button 
+          onClick={fetchTransactions} 
+          className="refresh-button"
+          disabled={loading}
+        >
+          {loading ? 'Refreshing...' : 'Refresh Data'}
+        </button>
+      </div>
       
       {error && <div className="error-message">{error}</div>}
       
@@ -62,7 +76,6 @@ const TransactionsPage = () => {
                 <p><strong>Item:</strong> {transaction.itemName}</p>
                 <p><strong>Item ID:</strong> {transaction.itemId}</p>
                 <p><strong>Quantity:</strong> {transaction.quantity}</p>
-                <p><strong>Final Amount:</strong> {transaction.finalQuantity}/{transaction.maxQuantity}</p>
               </div>
             </div>
           ))

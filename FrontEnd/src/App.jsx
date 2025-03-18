@@ -1,29 +1,27 @@
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Navbar from './components/Navbar';
+import HomePage from './pages/HomePage';
 import WarehousePage from './pages/WarehousePage';
 import ReceivingPage from './pages/ReceivingPage';
 import SendingPage from './pages/SendingPage';
+import TransactionsPage from './pages/TransactionsPage';
 import './App.css';
 
 function App() {
   return (
     <Router>
       <div className="app">
-        <header className="header">
-          <h1>Warehouse Management System</h1>
-          <nav>
-            <Link to="/" className="nav-link">Warehouse</Link>
-            <Link to="/receive" className="nav-link">Receive</Link>
-            <Link to="/send" className="nav-link">Send</Link>
-          </nav>
-        </header>
-
-        <main className="main-content">
+        <Navbar />
+        <div className="content">
           <Routes>
-            <Route path="/" element={<WarehousePage />} />
+            <Route path="/" element={<HomePage />} />
+            <Route path="/warehouse" element={<WarehousePage />} />
             <Route path="/receive" element={<ReceivingPage />} />
             <Route path="/send" element={<SendingPage />} />
+            <Route path="/transactions" element={<TransactionsPage />} />
           </Routes>
-        </main>
+        </div>
       </div>
     </Router>
   );

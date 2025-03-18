@@ -1,56 +1,167 @@
-const API_BASE_URL = 'http://localhost:3000/api';
+import axios from 'axios';
 
+const API_URL = 'http://localhost:3000/api';
+
+// Create axios instance with base URL
+const apiClient = axios.create({
+  baseURL: API_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+// API response handler
+const handleResponse = (response) => {
+  if (response.status >= 200 && response.status < 300) {
+    return {
+      success: true,
+      data: response.data,
+    };
+  }
+  return {
+    success: false,
+    error: response.data.message || 'An error occurred',
+  };
+};
+
+// Error handler
+const handleError = (error) => {
+  console.error('API Error:', error);
+  return {
+    success: false,
+    error: error.response?.data?.message || error.message || 'An error occurred',
+  };
+};
+
+// Warehouse API
 export const warehouseApi = {
-  // Get complete warehouse report
-  getWarehouseReport: async () => {
-    const response = await fetch(`${API_BASE_URL}/warehouse`);
-    if (!response.ok) throw new Error('Failed to fetch warehouse report');
-    return response.json();
-  },
-
-  // Get all compartments with items
+  // Compartments
   getCompartments: async () => {
-    const response = await fetch(`${API_BASE_URL}/warehouse/compartments`);
-    if (!response.ok) throw new Error('Failed to fetch compartments');
-    return response.json();
-  },
-
-  // Get available space in compartments
-  getAvailableSpace: async () => {
-    const response = await fetch(`${API_BASE_URL}/warehouse/compartments/available`);
-    if (!response.ok) throw new Error('Failed to fetch available space');
-    return response.json();
-  },
-
-  // Receive items (new or existing)
-  receiveItems: async (itemData) => {
-    const response = await fetch(`${API_BASE_URL}/warehouse/items/receive`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(itemData),
-    });
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || 'Failed to receive items');
+    try {
+      const response = await apiClient.get('/compartments');
+      return handleResponse(response);
+    } catch (error) {
+      return handleError(error);
     }
-    return response.json();
+  },
+
+  // Items
+  getAllItems: async () => {
+    try {
+      const response = await apiClient.get('/items');
+      return handleResponse(response);
+    } catch (error) {
+      return handleError(error);
+    }
+  },
+
+  getItemById: async (itemId) => {
+    try {
+      const response = await apiClient.get(`/items/${itemId}`);
+      return handleResponse(response);
+    } catch (error) {
+      return handleError(error);
+    }
+  },
+
+  getItemsByCategory: async (categoryId) => {
+    try {
+      const response = await apiClient.get(`/items/category/${categoryId}`);
+      return handleResponse(response);
+    } catch (error) {
+      return handleError(error);
+    }
+  },
+
+  // Transactions
+  getAllTransactions: async () => {
+    try {
+      const response = await apiClient.get('/transactions');
+      return handleResponse(response);
+    } catch (error) {
+      return handleError(error);
+    }
+  },
+
+  getTransactionsByItem: async (itemId) => {
+    try {
+      const response = await apiClient.get(`/transactions/item/${itemId}`);
+      return handleResponse(response);
+    } catch (error) {
+      return handleError(error);
+    }
+  },
+
+  getTransactionsByType: async (type) => {
+    try {
+      const response = await apiClient.get(`/transactions/type/${type}`);
+      return handleResponse(response);
+    } catch (error) {
+      return handleError(error);
+    }
   },
 
   // Send items
-  sendItems: async (itemData) => {
-    const response = await fetch(`${API_BASE_URL}/warehouse/items/send`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(itemData),
-    });
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || 'Failed to send items');
+  sendItems: async (data) => {
+    try {
+      const payload = {
+        itemId: parseInt(data.item_id),
+        quantity: parseInt(data.quantity)
+      };
+      const response = await apiClient.post('/transactions/send', payload);
+      return handleResponse(response);
+    } catch (error) {
+      return handleError(error);
     }
-    return response.json();
   },
+
+  // Receive items - existing item
+  receiveExistingItem: async (data) => {
+    try {
+      const payload = {
+        itemId: parseInt(data.item_id),
+        quantity: parseInt(data.quantity)
+      };
+      const response = await apiClient.post('/transactions/receive', payload);
+      return handleResponse(response);
+    } catch (error) {
+      return handleError(error);
+    }
+  },
+
+  // Receive items - new item
+  receiveItems: async (data) => {
+    try {
+      const payload = {
+        categoryId: parseInt(data.category_id),
+        itemName: data.name,
+        quantity: parseInt(data.quantity)
+      };
+      const response = await apiClient.post('/transactions/receive', payload);
+      return handleResponse(response);
+    } catch (error) {
+      return handleError(error);
+    }
+  },
+
+  // Warehouse report - combined information
+  getWarehouseReport: async () => {
+    try {
+      const response = await apiClient.get('/compartments');
+      return handleResponse(response);
+    } catch (error) {
+      return handleError(error);
+    }
+  },
+
+  getAvailableSpace: async () => {
+    try {
+      const response = await apiClient.get('/compartments/available');
+      return handleResponse(response);
+    } catch (error) {
+      return handleError(error);
+    }
+  }
 };
+
+export default warehouseApi;

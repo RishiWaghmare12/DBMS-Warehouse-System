@@ -1,11 +1,17 @@
 import React from 'react';
-import SendingReport from '../components/Reports/Sending/SendingReport';
+import ItemOperationsForm from '../components/Reports/ItemOperationsForm';
+import WarehouseReport from '../components/Reports/WarehouseReport';
 
 const SendingPage = () => {
+  const handleOperationSuccess = () => {
+    // You can add any additional logic here after successful operation
+  };
+
   return (
     <div className="sending-page">
       <h1>Sending Management</h1>
-      <SendingReport />
+      <ItemOperationsForm onSuccess={handleOperationSuccess} />
+      <WarehouseReport />
     </div>
   );
 };

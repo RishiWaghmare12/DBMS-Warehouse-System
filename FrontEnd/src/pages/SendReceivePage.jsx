@@ -15,9 +15,22 @@ const SendReceivePage = () => {
   const fetchItems = async () => {
     try {
       const response = await axios.get('http://localhost:3000/api/items');
-      setItems(response.data);
+      console.log('Items response:', response);
+      
+      // Handle different response formats
+      if (response.data && Array.isArray(response.data)) {
+        setItems(response.data);
+      } else if (response.data && response.data.data && Array.isArray(response.data.data)) {
+        setItems(response.data.data);
+      } else {
+        console.error('Unexpected items format:', response.data);
+        setItems([]);
+        setError('Failed to load items: Invalid data format');
+      }
     } catch (err) {
+      console.error('Error fetching items:', err);
       setError('Failed to fetch items');
+      setItems([]);
     }
   };
 
@@ -104,14 +117,22 @@ const SendReceivePage = () => {
         <h3>Select Item</h3>
         <select 
           value={selectedItem?.id || ''} 
-          onChange={(e) => handleItemSelect(items.find(item => item.id === parseInt(e.target.value)))}
+          onChange={(e) => {
+            const itemId = parseInt(e.target.value);
+            const item = items.find(item => item.id === itemId);
+            handleItemSelect(item);
+          }}
         >
           <option value="">Select an item...</option>
-          {items.map(item => (
-            <option key={item.id} value={item.id}>
-              {item.name} ({item.currentQuantity}/{item.maxQuantity})
-            </option>
-          ))}
+          {Array.isArray(items) && items.length > 0 ? (
+            items.map(item => (
+              <option key={item.id} value={item.id}>
+                {item.name} ({item.currentQuantity}/{item.maxQuantity})
+              </option>
+            ))
+          ) : (
+            <option disabled>No items available</option>
+          )}
         </select>
       </div>
 
@@ -147,4 +168,4 @@ const SendReceivePage = () => {
   );
 };
 
-export default SendReceivePage; 
+export default SendReceivePage;

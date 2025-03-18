@@ -48,31 +48,72 @@ class Item {
   }
 
   // Create a new item
-  static async create(name, categoryId, maxQuantity = 100) {
+  static async create(name, categoryId, maxQuantity = 100, initialQuantity = 0) {
+    const client = await pool.connect();
     try {
-      const result = await pool.query(`
-        INSERT INTO items (name, category_id, max_quantity) 
-        VALUES ($1, $2, $3) 
+      await client.query('BEGIN');
+      
+      const result = await client.query(`
+        INSERT INTO items (name, category_id, max_quantity, current_quantity) 
+        VALUES ($1, $2, $3, $4) 
         RETURNING *
-      `, [name, categoryId, maxQuantity]);
+      `, [name, categoryId, maxQuantity, initialQuantity]);
+      
+      // If initial quantity > 0, update category capacity
+      if (initialQuantity > 0) {
+        await client.query(`
+          UPDATE categories
+          SET current_capacity = current_capacity + $1
+          WHERE category_id = $2
+        `, [initialQuantity, categoryId]);
+      }
+      
+      await client.query('COMMIT');
       return result.rows[0];
     } catch (err) {
+      await client.query('ROLLBACK');
       throw new Error(`Error creating item: ${err.message}`);
+    } finally {
+      client.release();
     }
   }
 
   // Update item quantity
   static async updateQuantity(id, quantityChange) {
+    const client = await pool.connect();
     try {
-      const result = await pool.query(`
+      await client.query('BEGIN');
+      
+      // Get current item to know its category
+      const itemQuery = await client.query('SELECT * FROM items WHERE item_id = $1', [id]);
+      const item = itemQuery.rows[0];
+      
+      if (!item) {
+        throw new Error('Item not found');
+      }
+      
+      // Update item quantity
+      const result = await client.query(`
         UPDATE items 
         SET current_quantity = current_quantity + $1 
         WHERE item_id = $2 
         RETURNING *
       `, [quantityChange, id]);
+      
+      // Update category capacity
+      await client.query(`
+        UPDATE categories
+        SET current_capacity = current_capacity + $1
+        WHERE category_id = $2
+      `, [quantityChange, item.category_id]);
+      
+      await client.query('COMMIT');
       return result.rows[0];
     } catch (err) {
+      await client.query('ROLLBACK');
       throw new Error(`Error updating item quantity: ${err.message}`);
+    } finally {
+      client.release();
     }
   }
 
@@ -80,8 +121,8 @@ class Item {
   static async checkQuantityForSend(id, requestedQuantity) {
     try {
       const result = await pool.query(
-        'SELECT *, (current_quantity - $1) AS remaining_after_send FROM items WHERE item_id = $1',
-        [id, requestedQuantity]
+        'SELECT *, (current_quantity - $1) AS remaining_after_send FROM items WHERE item_id = $2',
+        [requestedQuantity, id]
       );
       
       const item = result.rows[0];

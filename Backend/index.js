@@ -3,6 +3,7 @@ const cors = require("cors");
 const { connectDB } = require("./config/db");
 const initDB = require("./db/init");
 const { pool } = require("./config/db");
+const warehouseRoutes = require("./routes/warehouse");
 
 const app = express();
 
@@ -14,6 +15,7 @@ const startServer = async () => {
     await connectDB();
     await initDB();
     
+    // Root route
     app.get('/', (req, res) => {
       res.json({ message: 'Warehouse Management API is running' });
     });
@@ -36,7 +38,10 @@ const startServer = async () => {
       }
     });
 
-    const PORT = process.env.PORT;
+    // API Routes
+    app.use('/api/warehouse', warehouseRoutes);
+
+    const PORT = process.env.PORT || 3000;
     app.listen(PORT, () => {
       console.log(`Server is running on port ${PORT}`);
     });

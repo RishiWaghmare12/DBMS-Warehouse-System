@@ -15,15 +15,29 @@ const CompartmentList = () => {
     try {
       setLoading(true);
       const response = await warehouseApi.getWarehouseReport();
-      if (response.success) {
-        // Sort compartments by category_id for consistent display
-        const sortedData = response.data.sort((a, b) => a.category_id - b.category_id);
-        setCompartments(sortedData);
+      
+      console.log('API Response:', response);
+      
+      if (response.success && response.data) {
+        // Handle nested data structure - response.data.data is the actual array
+        const compartmentsData = response.data.data || response.data;
+        
+        if (Array.isArray(compartmentsData)) {
+          setCompartments(compartmentsData);
+          setError(null);
+        } else {
+          console.error('Data is not an array:', compartmentsData);
+          setCompartments([]);
+          setError('Invalid data format received');
+        }
       } else {
         setError('Failed to fetch warehouse data');
+        setCompartments([]);
       }
     } catch (err) {
+      console.error('Error fetching warehouse data:', err);
       setError(err.message);
+      setCompartments([]);
     } finally {
       setLoading(false);
     }
@@ -55,12 +69,17 @@ const CompartmentList = () => {
       <div className="compartments-grid">
         {compartments.map((compartment) => (
           <Compartment
-            key={compartment.category_id}
-            id={compartment.category_id}
+            key={compartment.id}
+            id={compartment.id}
             name={compartment.name}
-            capacity={compartment.max_capacity}
-            currentItems={compartment.current_capacity}
-            items={compartment.items}
+            capacity={compartment.maxCapacity}
+            currentItems={compartment.currentCapacity}
+            items={compartment.items.map(item => ({
+              item_id: item.id,
+              name: item.name,
+              current_quantity: item.currentQuantity,
+              max_quantity: item.maxQuantity
+            }))}
           />
         ))}
       </div>

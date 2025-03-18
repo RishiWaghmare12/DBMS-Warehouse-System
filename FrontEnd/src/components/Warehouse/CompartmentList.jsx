@@ -8,17 +8,19 @@ const CompartmentList = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetchCompartments();
+    fetchWarehouseData();
   }, []);
 
-  const fetchCompartments = async () => {
+  const fetchWarehouseData = async () => {
     try {
       setLoading(true);
-      const response = await warehouseApi.getCompartments();
+      const response = await warehouseApi.getWarehouseReport();
       if (response.success) {
-        setCompartments(response.data);
+        // Sort compartments by category_id for consistent display
+        const sortedData = response.data.sort((a, b) => a.category_id - b.category_id);
+        setCompartments(sortedData);
       } else {
-        setError('Failed to fetch compartments');
+        setError('Failed to fetch warehouse data');
       }
     } catch (err) {
       setError(err.message);
@@ -27,12 +29,29 @@ const CompartmentList = () => {
     }
   };
 
-  if (loading) return <div>Loading compartments...</div>;
-  if (error) return <div className="error-report">{error}</div>;
+  if (loading) return (
+    <div className="loading-state">
+      <div className="loading-spinner"></div>
+      <p>Loading warehouse data...</p>
+    </div>
+  );
+  
+  if (error) return (
+    <div className="error-report">
+      <h3>Error Loading Data</h3>
+      <p>{error}</p>
+      <button onClick={fetchWarehouseData}>Retry</button>
+    </div>
+  );
 
   return (
-    <div className="compartment-list">
-      <h2>Warehouse Compartments</h2>
+    <div className="warehouse-content">
+      <div className="warehouse-header">
+        <h2>Warehouse Compartments</h2>
+        <button onClick={fetchWarehouseData} className="refresh-button">
+          Refresh Data
+        </button>
+      </div>
       <div className="compartments-grid">
         {compartments.map((compartment) => (
           <Compartment

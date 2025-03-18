@@ -5,7 +5,9 @@ import ThemeToggle from './ThemeToggle';
 const Navbar = () => {
   return (
     <header className="header">
-      <h1>Warehouse Management System</h1>
+      <Link to="/" style={{ textDecoration: 'none' }}>
+        <h1>Warehouse Management System</h1>
+      </Link>
       <div className="nav-container">
         <nav>
           <Link to="/warehouse" className="nav-link">Warehouse</Link>

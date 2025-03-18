@@ -1607,3 +1607,17 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 .dark-theme .compartment.expanded::-webkit-scrollbar-thumb:hover {
   background: var(--gray-500);
 }
+
+/* Dark theme specific styles for hero section */
+.dark-theme .hero-section {
+  background: linear-gradient(to right, var(--gray-200), var(--gray-100));
+  border: 1px solid var(--border-color);
+}
+
+.dark-theme .hero-section h1 {
+  color: var(--text-primary);
+}
+
+.dark-theme .hero-section p {
+  color: var(--text-secondary);
+}

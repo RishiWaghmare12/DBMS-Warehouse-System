@@ -17,7 +17,6 @@ yarn.lock
 *.sqlite
 *.sqlite3
 *.db
-*.sql
 *.log
 *.bak
 *.backup

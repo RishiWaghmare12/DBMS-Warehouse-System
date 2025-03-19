@@ -17,11 +17,11 @@ const initDB = async () => {
     if (parseInt(categoriesCount.rows[0].count) === 0) {
       await pool.query(`
         INSERT INTO categories (name, max_capacity, current_capacity) VALUES 
-        ('Electronics', 1000, 0),
-        ('Appliances', 1000, 0),
-        ('Furniture', 1000, 0),
-        ('Clothing', 1000, 0),
-        ('Books', 1000, 0);
+        ('Electronics', 500, 0),
+        ('Appliances', 500, 0),
+        ('Furniture', 500, 0),
+        ('Clothing', 500, 0),
+        ('Books', 500, 0);
       `);
       console.log('Default categories added');
 
@@ -31,27 +31,37 @@ const initDB = async () => {
         'Electronics': [
           { name: 'Laptop', quantity: 45 },
           { name: 'Smartphone', quantity: 75 },
-          { name: 'Tablet', quantity: 30 }
+          { name: 'Tablet', quantity: 30 },
+          { name: 'Headphones', quantity: 50 },
+          { name: 'Smartwatch', quantity: 40 }
         ],
         'Appliances': [
           { name: 'Refrigerator', quantity: 15 },
           { name: 'Microwave', quantity: 25 },
-          { name: 'Washing Machine', quantity: 10 }
+          { name: 'Washing Machine', quantity: 10 },
+          { name: 'Air Conditioner', quantity: 20 },
+          { name: 'Vacuum Cleaner', quantity: 30 }
         ],
         'Furniture': [
           { name: 'Office Chair', quantity: 20 },
           { name: 'Desk', quantity: 15 },
-          { name: 'Bookshelf', quantity: 10 }
+          { name: 'Bookshelf', quantity: 10 },
+          { name: 'Sofa', quantity: 12 },
+          { name: 'Coffee Table', quantity: 18 }
         ],
         'Clothing': [
           { name: 'T-Shirts', quantity: 60 },
           { name: 'Jeans', quantity: 40 },
-          { name: 'Jackets', quantity: 25 }
+          { name: 'Jackets', quantity: 25 },
+          { name: 'Dresses', quantity: 35 },
+          { name: 'Sweaters', quantity: 45 }
         ],
         'Books': [
           { name: 'Fiction', quantity: 80 },
           { name: 'Non-Fiction', quantity: 65 },
-          { name: 'Technical', quantity: 50 }
+          { name: 'Technical', quantity: 50 },
+          { name: 'Children', quantity: 70 },
+          { name: 'Educational', quantity: 55 }
         ]
       };
       
@@ -90,4 +100,4 @@ const initDB = async () => {
   }
 };
 
-module.exports = initDB; 
+module.exports = initDB;

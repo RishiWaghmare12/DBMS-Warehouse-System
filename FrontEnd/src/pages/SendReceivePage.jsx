@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import { warehouseApi } from '../services/api';
 
 const SendReceivePage = () => {
   const [items, setItems] = useState([]);
@@ -14,18 +14,24 @@ const SendReceivePage = () => {
 
   const fetchItems = async () => {
     try {
-      const response = await axios.get('http://localhost:3000/api/items');
+      const response = await warehouseApi.getAllItems();
       console.log('Items response:', response);
       
-      // Handle different response formats
-      if (response.data && Array.isArray(response.data)) {
-        setItems(response.data);
-      } else if (response.data && response.data.data && Array.isArray(response.data.data)) {
-        setItems(response.data.data);
+      if (response.success && response.data) {
+        // Handle different response formats
+        if (Array.isArray(response.data)) {
+          setItems(response.data);
+        } else if (response.data.data && Array.isArray(response.data.data)) {
+          setItems(response.data.data);
+        } else {
+          console.error('Unexpected items format:', response.data);
+          setItems([]);
+          setError('Failed to load items: Invalid data format');
+        }
       } else {
-        console.error('Unexpected items format:', response.data);
+        console.error('Error fetching items:', response.error);
+        setError('Failed to fetch items');
         setItems([]);
-        setError('Failed to load items: Invalid data format');
       }
     } catch (err) {
       console.error('Error fetching items:', err);
@@ -49,62 +55,75 @@ const SendReceivePage = () => {
 
   const handleSend = async () => {
     if (!selectedItem || !quantity) {
-      setError('Please select an item and enter quantity');
+      setError('Please select an item and specify quantity');
       return;
     }
 
-    const numQuantity = parseInt(quantity);
+    const numQuantity = parseInt(quantity, 10);
     if (isNaN(numQuantity) || numQuantity <= 0) {
-      setError('Please enter a valid quantity');
+      setError('Quantity must be a positive number');
       return;
     }
 
     if (numQuantity > selectedItem.currentQuantity) {
-      setError('Cannot send more items than available');
+      setError(`Cannot send more than available quantity (${selectedItem.currentQuantity})`);
       return;
     }
 
     try {
-      await axios.post('http://localhost:3000/api/transactions/send', {
+      const response = await warehouseApi.sendItems({
         itemId: selectedItem.id,
         quantity: numQuantity
       });
-      setSuccess(`Successfully sent ${numQuantity} items`);
-      fetchItems(); // Refresh items list
-      setSelectedItem(null);
-      setQuantity('');
+
+      if (response.success) {
+        setSuccess(`Successfully sent ${numQuantity} units of ${selectedItem.name}`);
+        setSelectedItem(null);
+        setQuantity('');
+        fetchItems();
+      } else {
+        setError(response.error || 'Failed to send items');
+      }
     } catch (err) {
+      console.error('Error sending items:', err);
       setError('Failed to send items');
     }
   };
 
   const handleReceive = async () => {
     if (!selectedItem || !quantity) {
-      setError('Please select an item and enter quantity');
+      setError('Please select an item and specify quantity');
       return;
     }
 
-    const numQuantity = parseInt(quantity);
+    const numQuantity = parseInt(quantity, 10);
     if (isNaN(numQuantity) || numQuantity <= 0) {
-      setError('Please enter a valid quantity');
+      setError('Quantity must be a positive number');
       return;
     }
 
-    if (numQuantity + selectedItem.currentQuantity > selectedItem.maxQuantity) {
-      setError('Cannot receive more items than maximum capacity');
+    const availableSpace = selectedItem.maxQuantity - selectedItem.currentQuantity;
+    if (numQuantity > availableSpace) {
+      setError(`Cannot receive more than available space (${availableSpace})`);
       return;
     }
 
     try {
-      await axios.post('http://localhost:3000/api/transactions/receive', {
+      const response = await warehouseApi.receiveExistingItem({
         itemId: selectedItem.id,
         quantity: numQuantity
       });
-      setSuccess(`Successfully received ${numQuantity} items`);
-      fetchItems(); // Refresh items list
-      setSelectedItem(null);
-      setQuantity('');
+
+      if (response.success) {
+        setSuccess(`Successfully received ${numQuantity} units of ${selectedItem.name}`);
+        setSelectedItem(null);
+        setQuantity('');
+        fetchItems();
+      } else {
+        setError(response.error || 'Failed to receive items');
+      }
     } catch (err) {
+      console.error('Error receiving items:', err);
       setError('Failed to receive items');
     }
   };

@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:3000/api';
+const API_URL = import.meta.env.VITE_API_URL;
 
 // Create axios instance with base URL
 const apiClient = axios.create({
@@ -104,11 +104,7 @@ export const warehouseApi = {
   // Send items
   sendItems: async (data) => {
     try {
-      const payload = {
-        itemId: parseInt(data.item_id),
-        quantity: parseInt(data.quantity)
-      };
-      const response = await apiClient.post('/transactions/send', payload);
+      const response = await apiClient.post('/transactions/send', data);
       return handleResponse(response);
     } catch (error) {
       return handleError(error);
@@ -118,11 +114,7 @@ export const warehouseApi = {
   // Receive items - existing item
   receiveExistingItem: async (data) => {
     try {
-      const payload = {
-        itemId: parseInt(data.item_id),
-        quantity: parseInt(data.quantity)
-      };
-      const response = await apiClient.post('/transactions/receive', payload);
+      const response = await apiClient.post('/transactions/receive', data);
       return handleResponse(response);
     } catch (error) {
       return handleError(error);
@@ -132,12 +124,7 @@ export const warehouseApi = {
   // Receive items - new item
   receiveItems: async (data) => {
     try {
-      const payload = {
-        categoryId: parseInt(data.category_id),
-        itemName: data.name,
-        quantity: parseInt(data.quantity)
-      };
-      const response = await apiClient.post('/transactions/receive', payload);
+      const response = await apiClient.post('/transactions/receive', data);
       return handleResponse(response);
     } catch (error) {
       return handleError(error);

@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-const { connectDB, runQuery } = require("./config/db");
+const { connectDB, pool } = require("./config/db");
 const initDB = require("./db/init");
 
 // Import API Routes
@@ -10,7 +10,25 @@ const transactionRoutes = require("./routes/transactions");
 
 const app = express();
 
-app.use(cors());
+// CORS Configuration
+const allowedOrigins = [
+  'http://localhost:5173',
+  'https://dbms-warehouse.vercel.app',
+  'https://dbms-warehouse-frontend.vercel.app'
+];
+
+app.use(cors({
+  origin: function(origin, callback) {
+    if (allowedOrigins.indexOf(origin) === -1) {
+      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  credentials: true
+}));
+
 app.use(express.json());
 
 const startServer = async () => {
@@ -34,7 +52,7 @@ const startServer = async () => {
     // Health check route to verify database connection
     app.get('/health', async (req, res) => {
       try {
-        const result = await runQuery('SELECT NOW()', []);
+        const result = await pool.query('SELECT NOW()');
         res.json({
           status: 'healthy',
           dbConnection: 'connected',

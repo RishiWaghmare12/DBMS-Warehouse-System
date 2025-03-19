@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import { warehouseApi } from '../services/api';
 import '../App.css';
 
 const TransactionsPage = () => {
@@ -14,28 +14,34 @@ const TransactionsPage = () => {
   const fetchTransactions = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:3000/api/transactions');
-      // Check if response.data is an array before sorting
-      if (Array.isArray(response.data)) {
-        const sortedTransactions = response.data.sort((a, b) => 
-          new Date(b.createdAt) - new Date(a.createdAt)
-        );
-        setTransactions(sortedTransactions);
-      } else if (response.data && response.data.data && Array.isArray(response.data.data)) {
-        // If the data is nested inside a data property
-        const sortedTransactions = response.data.data.sort((a, b) => 
-          new Date(b.createdAt) - new Date(a.createdAt)
-        );
-        setTransactions(sortedTransactions);
+      const response = await warehouseApi.getAllTransactions();
+      
+      if (response.success && response.data) {
+        // Handle different response formats
+        if (Array.isArray(response.data)) {
+          const sortedTransactions = response.data.sort((a, b) => 
+            new Date(b.createdAt) - new Date(a.createdAt)
+          );
+          setTransactions(sortedTransactions);
+        } else if (response.data.data && Array.isArray(response.data.data)) {
+          const sortedTransactions = response.data.data.sort((a, b) => 
+            new Date(b.createdAt) - new Date(a.createdAt)
+          );
+          setTransactions(sortedTransactions);
+        } else {
+          console.error('Unexpected response format:', response.data);
+          setTransactions([]);
+          setError('Failed to load transactions: Invalid data format');
+        }
       } else {
-        // If data is not in expected format
-        console.error('Unexpected response format:', response.data);
-        setTransactions(response.data || []);
+        console.error('Error fetching transactions:', response.error);
+        setError('Failed to fetch transactions');
+        setTransactions([]);
       }
-      setError('');
     } catch (err) {
       console.error('Error fetching transactions:', err);
       setError('Failed to fetch transactions');
+      setTransactions([]);
     } finally {
       setLoading(false);
     }

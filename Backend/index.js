@@ -10,22 +10,11 @@ const transactionRoutes = require("./routes/transactions");
 
 const app = express();
 
-// CORS Configuration
-const allowedOrigins = [
-  'http://localhost:5173',
-  'https://dbms-warehouse.vercel.app',
-  'https://dbms-warehouse-frontend.vercel.app'
-];
-
+// Configure CORS to allow all origins
 app.use(cors({
-  origin: function(origin, callback) {
-    if (allowedOrigins.indexOf(origin) === -1) {
-      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-      return callback(new Error(msg), false);
-    }
-    return callback(null, true);
-  },
+  origin: '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
 }));
 
